@@ -7,11 +7,16 @@
 
 namespace dna {
 
-    const uint8_t PART_A = 0b00000000;
-    const uint8_t PART_T = 0b00000001;
-    const uint8_t PART_G = 0b00000010;
-    const uint8_t PART_C = 0b00000011;
+    namespace {
+        const uint8_t PART_A = 0b00000000;
+        const uint8_t PART_T = 0b00000001;
+        const uint8_t PART_G = 0b00000010;
+        const uint8_t PART_C = 0b00000011;
 
+        std::map<char, uint8_t> cn_map = { { 'T', PART_T }, { 'A', PART_A }, { 'G', PART_G }, { 'C' , PART_C } };
+        std::map<uint8_t, char> nc_map = { { PART_T, 'T' }, { PART_A, 'A' }, { PART_G, 'G' }, { PART_C, 'C' } };
+        std::map<uint8_t, uint8_t> opposites = { { PART_T, PART_A }, { PART_A, PART_T }, { PART_G, PART_C }, { PART_C, PART_G } };
+    }
     class Chain {
         public:
             Chain(): dna_size(0) {}
@@ -31,7 +36,7 @@ namespace dna {
                         this->chain.push_back(0);
                     size_t cSize = this->chain.size();
                     size_t diff = (cSize * 4) - this->dna_size;
-                    uint8_t p = this->cn_map[parts[i]];
+                    uint8_t p = cn_map[parts[i]];
                     this->chain[cSize - 1] = this->chain[cSize - 1] | (p << ((diff * 2) - 2));
                     ++this->dna_size;
                 }
@@ -44,7 +49,7 @@ namespace dna {
                         if(done >= this->dna_size)
                             goto end;
                         uint8_t n = (part >> i) & 0b00000011;
-                        ret.push_back({ this->nc_map[n], this->nc_map[this->opposites[n]] });
+                        ret.push_back({ nc_map[n], nc_map[opposites[n]] });
                         done++;
                     }
                 }
@@ -59,8 +64,8 @@ namespace dna {
                         if(done >= this->dna_size)
                             goto end;
                         uint8_t n = (part >> i) & 0b00000011;
-                        uint8_t o = this->opposites[n];
-                        ret.push_back(o == PART_T ? 'U' : this->nc_map[o]);
+                        uint8_t o = opposites[n];
+                        ret.push_back(o == PART_T ? 'U' : nc_map[o]);
                         done++;
                     }
                 }
@@ -68,10 +73,6 @@ namespace dna {
                 return ret;
             }
         private:
-            inline static std::map<char, uint8_t> cn_map = { { 'T', PART_T }, { 'A', PART_A }, { 'G', PART_G }, { 'C' , PART_C } };
-            inline static std::map<uint8_t, char> nc_map = { { PART_T, 'T' }, { PART_A, 'A' }, { PART_G, 'G' }, { PART_C, 'C' } };
-            inline static std::map<uint8_t, uint8_t> opposites = { { PART_T, PART_A }, { PART_A, PART_T }, { PART_G, PART_C }, { PART_C, PART_G } };
-
             size_t dna_size;
             std::vector<uint8_t> chain;
 
